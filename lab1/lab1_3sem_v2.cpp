@@ -135,7 +135,7 @@ void GetArr(datetime* arr, int x)
 		da1 >> arr[i].second >> arr[i].minute >> arr[i].hour >> arr[i].day >> arr[i].month >> arr[i].year;
 		i++;
 	}
-
+	f.close();
 }
 void outALL(datetime* arr, datetime* arr1, int n)
 {
@@ -231,6 +231,7 @@ void fun3(timedelta a, timedelta b, timedelta& c)//прототип
 {
 	int x;
 	cout << "What do you want?\n1 - plus\n2 - minus\n";cin >> x;
+	
 
 	if (x == 1) {
 
@@ -242,6 +243,9 @@ void fun3(timedelta a, timedelta b, timedelta& c)//прототип
 		c.day = a.day + b.day;
 		c.month = a.month + b.month;
 		c.year = a.year + b.year;
+		
+
+		out2(c);
 
 	}
 
@@ -255,6 +259,8 @@ void fun3(timedelta a, timedelta b, timedelta& c)//прототип
 		c.day = a.day - b.day;
 		c.month = a.month - b.month;
 		c.year = a.year - b.year;
+
+		out2(c);
 	}
 
 	else
@@ -312,6 +318,17 @@ bool CheckData(datetime* arr, int n)
 	}
 	return true;
 }
+void In_Tmdlt(timedelta& a)
+{
+	cout << "Enter timedelta data\n";
+	cout << " Sec:";cin >> a.second;
+	cout << " Min:";cin >> a.minute;
+	cout << " Hour:";cin >> a.hour;
+	cout << " Day:";cin >> a.day;
+	cout << " Mon:";cin >> a.month;
+	cout << " Year:";cin >> a.year;
+
+}
 int main()
 {
 	int n;
@@ -330,7 +347,12 @@ int main()
 		//CheckYear(arr1, arr, n);
 		fun1(b, a, c);
 		fun2(a, b, c);
+		
+		timedelta x, y, z;
+		In_Tmdlt(x);In_Tmdlt(y);
+		fun3(x, y, z);
 	}
 	else cout << "GG WP" << endl;
+	
 	return 0;
 }
