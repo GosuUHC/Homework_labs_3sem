@@ -33,7 +33,7 @@ public:
 		std::cout << "shape dest!!!" << std::endl;
 	}
 };
-class ellipse :protected shape {
+class ellipse :public shape {
 protected:
 	double a, b;
 public:
@@ -96,7 +96,7 @@ public:
 		std::cout << "elipse dest!" << std::endl;
 	}
 };
-class circle : protected ellipse {
+class circle : public ellipse {
 protected:
 	double R;
 public:
@@ -145,7 +145,7 @@ public:
 		std::cout << "circle dest!" << std::endl;
 	};
 };
-class triangle : protected shape {
+class triangle : public shape {
 protected:
 	double a;
 	double b;
@@ -188,7 +188,7 @@ public:
 		triangleslav.setPoint(2, sf::Vector2f(0.f-h, 0.f-b/2.));
 		triangleslav.setFillColor(sf::Color::Cyan);
 		triangleslav.setOutlineThickness(0);
-		triangleslav.setPosition(100+coord_x, 100+h-coord_y);
+		triangleslav.setPosition(100+coord_x, 100-h-coord_y);
 		triangleslav.rotate(-90);
 		while (window.isOpen())
 		{
@@ -215,7 +215,7 @@ public:
 		std::cout << "triangle dest!" << std::endl;
 	};
 };
-class rectangle : protected shape {
+class rectangle : public shape {
 protected:
 	double a;
 	double b;
@@ -266,7 +266,7 @@ public:
 	};
 };
 
-class square : protected rectangle {
+class square : public rectangle {
 protected:
 
 	
@@ -315,94 +315,78 @@ public:
 		std::cout << "square dest!" << std::endl;
 	};
 };
-
-class SquareCylinder :protected square {
+class Cylinder {
+protected:
+	shape* f;
 private:
-	
-	double h;//b from rectangle
+	double h;
 public:
-	SquareCylinder(std::string name, double a, double h):square(name, a) {
+	Cylinder(shape* f, double h)
+	{
+		this->f = f;
+		this->h = h;
+	}
+	virtual double volume()
+	{
+		return h * f->area();
+	}
+	virtual void show()
+	{
+		std::cout <<std::endl<< "Name="<<this->Get_name()<<" V="<<this->volume();
+	}
+	std::string Get_name()
+	{
+		return f->Get_name();
+	}
+	virtual std::string to_str()
+	{
+		std::stringstream str;
+		str << "Name:" << this->Get_name() << "\nV=" << this->volume() << std::endl;
+		std::string str1 = str.str();
+		return str1;
+	}
+	~Cylinder() {
+		std::cout << "Cylinder dest!!" << std::endl;
+		delete f;
 		
-		if (h > 0) this->h = h;
 	}
-	double volume()
-	{
-		return square::area()*h;
-	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "V=" << volume() << std::endl;
-	}
-	std::string to_str()
-	{
-		std::stringstream str;
-		str << "Name:" << Get_name() << "\nV=" << volume() << std::endl;
-		std::string str1 = str.str();
-		return str1;
-	}
-	~SquareCylinder() {
-		std::cout << "SquareCylinder dest!" << std::endl;
-	};
 };
-class TriangleCylinder :protected triangle {
-private:
-	double h;
-	
+class CircleCylinder :public Cylinder
+{
 public:
-	TriangleCylinder(std::string name, double h, double a, double b, double c) :triangle(name, a, b, c)
+	static CircleCylinder* CreateInst(std::string name, double r, double h)
 	{
-		if (h > 0) this->h = h;
-	}
-	double volume()
-	{
-		return  triangle::area() * h;
-	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "V=" << volume() << std::endl;
+		circle* C = new circle(name, r);
+		CircleCylinder* CC = new CircleCylinder(C, h);
+		
+		return CC;
 	}
 	
-	std::string to_str()
-	{
-		std::stringstream str;
-		str << "Name:" << Get_name() << "\nV=" << volume() << std::endl;
-		std::string str1 = str.str();
-		return str1;
-	}
-	~TriangleCylinder() {
-		std::cout << "TriangleCylinder dest!" << std::endl;
-	};
+	CircleCylinder(circle* f, double h) : Cylinder(f, h) {}
 };
-class CircleCylinder :protected circle {
-private:
-	double h;
-	double R1;
+class TriangleCylinder :public Cylinder
+{
 public:
-	CircleCylinder(std::string name,double a, double h) :circle(name, a)
+	static TriangleCylinder* CreateInst(std::string name, double a, double b, double c, double h)
 	{
-		if (h > 0) this->h = h;
-		R1 = R;
+		triangle* tri = new triangle(name, a, b, c);
+		TriangleCylinder* triCyl = new TriangleCylinder(tri, h);
+		return triCyl;
 	}
-	double volume()
-	{
-		return circle::area() * h;
-	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "V=" << volume() << std::endl;
-	}
-	std::string to_str()
-	{
-		std::stringstream str;
-		str << "Name:" << Get_name() << "\nV=" << volume() << std::endl;
-		std::string str1 = str.str();
-		return str1;
-	}
-	~CircleCylinder() {
-		std::cout << "CircleCylinder dest!" << std::endl;
-	};
+	TriangleCylinder(triangle* f, double h) : Cylinder(f, h) {}
 };
+class SquareCylinder :public Cylinder
+{
+public:
+	static SquareCylinder* CreateInst(std::string name, double a, double h)
+	{
+		square* sq = new square(name, a);
+		SquareCylinder* sqCyl = new SquareCylinder(sq, h);
+		return sqCyl;
+	}
 
+	SquareCylinder(square* f, double h) : Cylinder(f, h) {}
+};
 class app
 {
 public:
@@ -419,17 +403,14 @@ public:
 		std::cout << "Enter x, y(ellipse diagonals(x will be circle radius):\n"; std::cin >> x >> y;
 		std::cout << "Enter a, b, c(triangle):\n"; std::cin >> a >> b >> c;
 		std::cout << "Enter a, b(rectangle sides):\n"; std::cin >> a1 >> b1;
-		std::cout << "Enter h(triangle cylinder):\n"; std::cin >> h1;
-		std::cout << "Enter h(circle cylinder):\n"; std::cin >> h2;
-		
+	
+		Cylinder* CYL = NULL;
 		ellipse el = ellipse("Elipz", x, y);
 		circle circ = circle("Kryg",x);
 		triangle tri = triangle("Treygolnik", a, b, c);
 		rectangle rect = rectangle("Pryamoygolnik", a1, b1);
 		square sq = square("kvadrat", a1);
-		SquareCylinder sqc = SquareCylinder("Cylinder 1",a1,b1);
-		TriangleCylinder trc = TriangleCylinder("Cylinder 2", a,b,c,h2);
-		CircleCylinder scc = CircleCylinder("Cylinder 3",x, h2);
+		
 		el.show();
 		circ.show();
 		tri.show();
@@ -440,12 +421,51 @@ public:
 		tri.draw_and_move(0, 0);
 		rect.draw_and_move(0, 0);
 		sq.draw_and_move(0, 0);
-		
-		sqc.show();
-		trc.show();
-		scc.show();
-
 		bool t;
+		std::cout << "Do you want to create cylinders? 0-no 1-yes" << std::endl;std::cin >> t;
+		if (t) {
+			int z = -1;
+			while (z != 0)
+			{
+				std::cout << std::endl << "What cylinder do you want to create? 1-circle 2-triangle 3-square  0-exit" << std::endl;
+				std::cin >> z;
+				switch (z)
+				{
+				case 1: {
+					std::cout << "CircleCylinder with r from ellipse" << std::endl;
+					std::cout << "Enter height:";std::cin >> h1;
+					CYL = CircleCylinder::CreateInst("Circle cyl", x, h1);
+					CYL->show();
+					std::string CYLstr = CYL->to_str();
+					
+				}break;
+				case 2: {
+					std::cout << "TriangleCylinder with a, b, c from triangle!" << std::endl;
+					std::cout << "Enter height:";std::cin >> h1;
+					CYL = TriangleCylinder::CreateInst("Triangle cyl", a, b, c, h1);
+					CYL->show();
+					std::string CYLstr = CYL->to_str();
+
+				}break;
+				case 3: {
+					std::cout << "SquareCylinder with a=a and b=h from rectangle!" << std::endl;
+					std::cout << "Enter height:";std::cin >> h1;
+					CYL = SquareCylinder::CreateInst("Square cyl", a1, b1);
+					CYL->show();
+					std::string CYLstr = CYL->to_str();
+
+				}break;
+				default:
+				{
+					break;
+					
+				}
+				}
+			}
+
+		}
+
+		
 		std::cout << "Do you want to move objects? No-0, Yes-1" << std::endl;std::cin >> t;
 		if (t)
 		{
@@ -485,6 +505,7 @@ public:
 					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
 					sq.draw_and_move(coord_x, coord_y);
 				}break;
+				default: {break;}
 				}
 			}
 		}
@@ -493,6 +514,7 @@ public:
 		std::string str1;
 		str1 = circ.to_str();
 		std::cout << std::endl << str1 << std::endl;
+		std::cin.get();
 	}
 
 };
