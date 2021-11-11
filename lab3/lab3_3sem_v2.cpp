@@ -15,16 +15,21 @@ public:
 		if (name.size() > 0)
 			this->name = name;
 	}
-	virtual void draw_and_move(double coord_x, double coord_y)=0;
+	virtual void draw_and_move(double coord_x, double coord_y) = 0;
 	virtual double area() = 0;
-	virtual void show() = 0;
-	virtual std::string to_string(){
+	virtual void show()
+	{
+		std::cout << "Name:" << this->Get_name() << std::endl << "S=" << this->area() << std::endl;
+	}
+	virtual std::string to_string()
+	{
 		std::stringstream circ;
 		circ << "Name:" << this->Get_name() << "\nS=" << this->area() << std::endl;
 		std::string circ1 = circ.str();
 		return circ1;
 	}
-	virtual std::string Get_name() {
+	virtual std::string Get_name() 
+	{
 		std::string name = this->name;
 		return name;
 	}
@@ -46,10 +51,6 @@ public:
 	{
 		return M_PI*a*b;
 	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "S=" << area() << std::endl;
-	}
 	void draw_and_move(double coord_x, double coord_y)
 	{
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Ellipse!");
@@ -69,7 +70,7 @@ public:
 		};
 		ellipseslav.setFillColor(sf::Color::Magenta);
 		
-		ellipseslav.setPosition(100+coord_x, 100-coord_y);
+		ellipseslav.setPosition(100.+coord_x, 100.-coord_y);
 
 		while (window.isOpen())
 		{
@@ -85,13 +86,6 @@ public:
 		}
 	}
 	
-	std::string to_str()
-	{
-		std::string zxc;
-		zxc = shape::to_string();
-		return zxc;
-	}
-
 	virtual ~ellipse() {
 		std::cout << "elipse dest!" << std::endl;
 	}
@@ -108,13 +102,10 @@ public:
 	{
 		return M_PI * R * R;
 	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "S=" << area() << std::endl;
-	}
+	
 	void draw_and_move(double coord_x, double coord_y)
 	{
-		sf::RenderWindow window(sf::VideoMode(200, 200), "Circle!");// outline is taking 5 more radius(R=10; printed would be 15)
+		sf::RenderWindow window(sf::VideoMode(200, 200), "Circle!");
 		sf::CircleShape circleslav(R);
 		circleslav.setFillColor(sf::Color::Red);
 		circleslav.setPosition(100. - R+coord_x, 100. - R-coord_y);
@@ -134,13 +125,7 @@ public:
 			window.display();
 		}
 	}
-	
-	std::string to_str()
-	{
-		std::string zxc;
-		zxc= shape::to_string();
-		return zxc;
-	}
+
 	virtual ~circle() {
 		std::cout << "circle dest!" << std::endl;
 	};
@@ -170,26 +155,21 @@ public:
 		double p = (a + b + c) / 2;
 		return sqrt(p * (p - a) * (p - b) * (p - c));
 	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "S=" << area() << std::endl;
-	}
+	
 	void draw_and_move(double coord_x, double coord_y)
 	{
 		
-		
-		float h= (2.*this->area())/b;
-		
+		double h = (2. * this->area()) / b;
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Triangle!");
 		sf::ConvexShape triangleslav;
 		triangleslav.setPointCount(3);
 		triangleslav.setPoint(0, sf::Vector2f(0.f, 0.f));
-		triangleslav.setPoint(1, sf::Vector2f(0.f-h, 0.f+b/2.));
-		triangleslav.setPoint(2, sf::Vector2f(0.f-h, 0.f-b/2.));
+		triangleslav.setPoint(1, sf::Vector2f(0.f+(sqrt(a*a-h*h)), 0.f+h));
+		triangleslav.setPoint(2, sf::Vector2f(0.f-(sqrt(c*c-h*h)), 0.f+h));
 		triangleslav.setFillColor(sf::Color::Cyan);
 		triangleslav.setOutlineThickness(0);
-		triangleslav.setPosition(100+coord_x, 100-h-coord_y);
-		triangleslav.rotate(-90);
+		triangleslav.setPosition(100.+coord_x, 100.-h/2.-coord_y);
+		
 		while (window.isOpen())
 		{
 			sf::Event event;
@@ -203,13 +183,6 @@ public:
 			window.draw(triangleslav);
 			window.display();
 		}
-	}
-	
-	std::string to_str()
-	{
-		std::string zxc;
-		zxc = shape::to_string();
-		return zxc;
 	}
 	virtual ~triangle() {
 		std::cout << "triangle dest!" << std::endl;
@@ -229,10 +202,7 @@ public:
 	{
 		return a * b;
 	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "S=" << area() << std::endl;
-	}
+	
 	void draw_and_move(double coord_x, double coord_y)
 	{
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Rectangle!");
@@ -255,12 +225,6 @@ public:
 		}
 	}
 	
-	std::string to_str()
-	{
-		std::string zxc;
-		zxc = shape::to_string();
-		return zxc;
-	}
 	virtual ~rectangle() {
 		std::cout << "rectangle dest!" << std::endl;
 	};
@@ -278,10 +242,6 @@ public:
 	double area()
 	{
 		return a * a;
-	}
-	void show()
-	{
-		std::cout << "Name:" << Get_name() << std::endl << "S=" << area() << std::endl;
 	}
 	void draw_and_move(double coord_x, double coord_y)
 	{
@@ -303,13 +263,6 @@ public:
 			window.draw(squareslav);
 			window.display();
 		}
-	}
-	
-	std::string to_str()
-	{
-		std::string zxc;
-		zxc = shape::to_string();
-		return zxc;
 	}
 	virtual ~square() {
 		std::cout << "square dest!" << std::endl;
@@ -345,10 +298,9 @@ public:
 		std::string str1 = str.str();
 		return str1;
 	}
-	~Cylinder() {
+	virtual ~Cylinder() {
 		std::cout << "Cylinder dest!!" << std::endl;
 		delete f;
-		
 	}
 };
 class CircleCylinder :public Cylinder
@@ -396,9 +348,9 @@ public:
 		double x, y;//for elliplse
 		double a, b, c;//for triangle
 		double a1, b1;//for rectangle
-		double h1, h2;//for trianglecylinder and circlecylinder
+		double h1;//for trianglecylinder and circlecylinder
 
-		double coord_x = 0, coord_y = 0;
+		double coord_x = 0, coord_y = 0;//for redrawing objects
 
 		std::cout << "Enter x, y(ellipse diagonals(x will be circle radius):\n"; std::cin >> x >> y;
 		std::cout << "Enter a, b, c(triangle):\n"; std::cin >> a >> b >> c;
@@ -449,7 +401,7 @@ public:
 				}break;
 				case 3: {
 					std::cout << "SquareCylinder with a=a and b=h from rectangle!" << std::endl;
-					std::cout << "Enter height:";std::cin >> h1;
+					
 					CYL = SquareCylinder::CreateInst("Square cyl", a1, b1);
 					CYL->show();
 					std::string CYLstr = CYL->to_str();
@@ -458,7 +410,6 @@ public:
 				default:
 				{
 					break;
-					
 				}
 				}
 			}
@@ -512,14 +463,16 @@ public:
 		else std::cout << "NO MOVING!" << std::endl;
 		std::cout << "To_string example:" << std::endl;
 		std::string str1;
-		str1 = circ.to_str();
+		str1 = circ.to_string();
 		std::cout << std::endl << str1 << std::endl;
-		std::cin.get();
+		delete CYL;
+
 	}
 
 };
 int main()
 {
 	app::run();
+	system("pause");
 	return 0;
 }
