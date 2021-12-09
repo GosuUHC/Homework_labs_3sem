@@ -5,6 +5,27 @@
 #include <cmath>
 
 
+
+class Exc {
+private:
+	int number;
+	std::string message;
+public:
+	Exc(int a, std::string b)
+	{
+		number = a;
+		message = b;
+	}
+	void show()
+	{
+		std::cout << std::endl;
+		std::cout << "Error number " << number << ":" << std::endl;
+		std::cout << "\t" << message << std::endl;
+
+	}
+	~Exc() {};
+};
+
 class shape {
 protected:
 	std::string name;
@@ -12,23 +33,25 @@ protected:
 public:
 	shape(std::string name)
 	{
-		if (name.size() > 0)
+		if (name.size() > 0) {
 			this->name = name;
+		}
+		else throw Exc(1, "Shape name error");
 	}
 	virtual void draw_and_move(double coord_x, double coord_y) = 0;
-	virtual double area() = 0;
+	virtual double area()=0;
 	virtual void show()
 	{
-		std::cout << "Name:" << this->Get_name() << std::endl << "S=" << this->area() << std::endl;
+		std::cout << "Name:" << this->Get_name() << std::endl << "S=" << area() << std::endl;
 	}
 	virtual std::string to_string()
 	{
 		std::stringstream circ;
-		circ << "Name:" << this->Get_name() << "\nS=" << this->area() << std::endl;
+		circ << "Name:" << this->Get_name() << "\nS=" << area() << std::endl;
 		std::string circ1 = circ.str();
 		return circ1;
 	}
-	virtual std::string Get_name() 
+	 std::string Get_name() 
 	{
 		std::string name = this->name;
 		return name;
@@ -44,8 +67,11 @@ protected:
 public:
 	ellipse(std::string name, double a, double b) :shape(name)
 	{
-		if (a > 0) this->a = a;
-		if (b > 0) this->b = b;
+		if (a >= 0 && b >= 0) {
+			this->a = a;
+			this->b = b;
+		}
+		else throw Exc(2, "Ellipse diagonals error");
 	}
 	double area()
 	{
@@ -90,25 +116,22 @@ public:
 		std::cout << "elipse dest!" << std::endl;
 	}
 };
+
 class circle : public ellipse {
 protected:
-	double R;
+	
 public:
 	circle(std::string name, double a) :ellipse(name, a, b)
 	{
-		R = a;
-	}
-	double area()
-	{
-		return M_PI * R * R;
+		b = a;
 	}
 	
 	void draw_and_move(double coord_x, double coord_y)
 	{
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Circle!");
-		sf::CircleShape circleslav(R);
+		sf::CircleShape circleslav(a);
 		circleslav.setFillColor(sf::Color::Red);
-		circleslav.setPosition(100. - R+coord_x, 100. - R-coord_y);
+		circleslav.setPosition(100. - a+coord_x, 100. - a-coord_y);
 		
 		
 		while (window.isOpen())
@@ -144,21 +167,16 @@ public:
 			this->b = b;
 			this->c = c;
 		}
-		else {
-			this->a = 0;
-			this->b = 0;
-			this->c = 0;
-		}
+		else throw Exc(3, "Triangle creating error");
 	}
 	double area()
 	{
-		double p = (a + b + c) / 2;
+		double p = (a + b + c) / 2.;
 		return sqrt(p * (p - a) * (p - b) * (p - c));
 	}
 	
 	void draw_and_move(double coord_x, double coord_y)
 	{
-		
 		double h = (2. * this->area()) / b;
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Triangle!");
 		sf::ConvexShape triangleslav;
@@ -195,8 +213,11 @@ protected:
 public:
 	rectangle(std::string name, double a, double b) :shape(name)
 	{
-		if (a > 0) this->a = a;
-		if (b > 0) this->b = b;
+		if (a >= 0 && b >= 0) {
+			this->a = a;
+			this->b = b;
+		}
+		else throw Exc(4, "Rectangle creating error");
 	}
 	double area()
 	{
@@ -232,17 +253,12 @@ public:
 
 class square : public rectangle {
 protected:
-
-	
 public:
 	square(std::string name, double a) :rectangle(name, a, b)
 	{		
-		
+		b = a;
 	}
-	double area()
-	{
-		return a * a;
-	}
+	
 	void draw_and_move(double coord_x, double coord_y)
 	{
 		sf::RenderWindow window(sf::VideoMode(200, 200), "Square!");
@@ -268,77 +284,46 @@ public:
 		std::cout << "square dest!" << std::endl;
 	};
 };
+template<typename T>
 class Cylinder {
 protected:
-	shape* f;
+	T* f;
 private:
 	double h;
 public:
-	Cylinder(shape* f, double h)
+	Cylinder(T* f, double h)
 	{
-		this->f = f;
-		this->h = h;
+		if (h > 0) {
+			this->f = f;
+			this->h = h;
+		}
+		else throw Exc(5, "Cylinder height <=0");
 	}
-	virtual double volume()
+	double volume()
 	{
 		return h * f->area();
 	}
-	virtual void show()
+	void show()
 	{
-		std::cout <<std::endl<< "Name="<<this->Get_name()<<" V="<<this->volume();
+		std::cout << std::endl << "Name=" << this->Get_name() << " V=" << this->volume() << "\nCreated from " << f->Get_name() << " With S=" << f->area() << std::endl;
 	}
 	std::string Get_name()
 	{
 		return f->Get_name();
 	}
-	virtual std::string to_str()
+	std::string to_str()
 	{
 		std::stringstream str;
-		str << "Name:" << this->Get_name() << "\nV=" << this->volume() << std::endl;
+		str << "Name:" << this->Get_name() << "V=" << this->volume() << "\nCreated from " << f->Get_name() << " With S=" << f->area() << std::endl;
 		std::string str1 = str.str();
 		return str1;
 	}
-	virtual ~Cylinder() {
+	~Cylinder() {
 		std::cout << "Cylinder dest!!" << std::endl;
 		delete f;
 	}
 };
-class CircleCylinder :public Cylinder
-{
-public:
-	static CircleCylinder* CreateInst(std::string name, double r, double h)
-	{
-		circle* C = new circle(name, r);
-		CircleCylinder* CC = new CircleCylinder(C, h);
-		
-		return CC;
-	}
-	
-	CircleCylinder(circle* f, double h) : Cylinder(f, h) {}
-};
-class TriangleCylinder :public Cylinder
-{
-public:
-	static TriangleCylinder* CreateInst(std::string name, double a, double b, double c, double h)
-	{
-		triangle* tri = new triangle(name, a, b, c);
-		TriangleCylinder* triCyl = new TriangleCylinder(tri, h);
-		return triCyl;
-	}
-	TriangleCylinder(triangle* f, double h) : Cylinder(f, h) {}
-};
-class SquareCylinder :public Cylinder
-{
-public:
-	static SquareCylinder* CreateInst(std::string name, double a, double h)
-	{
-		square* sq = new square(name, a);
-		SquareCylinder* sqCyl = new SquareCylinder(sq, h);
-		return sqCyl;
-	}
 
-	SquareCylinder(square* f, double h) : Cylinder(f, h) {}
-};
 class app
 {
 public:
@@ -351,124 +336,129 @@ public:
 		double h1;//for trianglecylinder and circlecylinder
 
 		double coord_x = 0, coord_y = 0;//for redrawing objects
-
+		
 		std::cout << "Enter x, y(ellipse diagonals(x will be circle radius):\n"; std::cin >> x >> y;
-		std::cout << "Enter a, b, c(triangle):\n"; std::cin >> a >> b >> c;
-		std::cout << "Enter a, b(rectangle sides):\n"; std::cin >> a1 >> b1;
-	
-		Cylinder* CYL = NULL;
-		ellipse el = ellipse("Elipz", x, y);
-		circle circ = circle("Kryg",x);
-		triangle tri = triangle("Treygolnik", a, b, c);
-		rectangle rect = rectangle("Pryamoygolnik", a1, b1);
-		square sq = square("kvadrat", a1);
-		
-		el.show();
-		circ.show();
-		tri.show();
-		rect.show();
-		sq.show();
-		el.draw_and_move(0, 0);
-		circ.draw_and_move(0, 0);
-		tri.draw_and_move(0, 0);
-		rect.draw_and_move(0, 0);
-		sq.draw_and_move(0, 0);
-		bool t;
-		std::cout << "Do you want to create cylinders? 0-no 1-yes" << std::endl;std::cin >> t;
-		if (t) {
-			int z = -1;
-			while (z != 0)
-			{
-				std::cout << std::endl << "What cylinder do you want to create? 1-circle 2-triangle 3-square  0-exit" << std::endl;
-				std::cin >> z;
-				switch (z)
-				{
-				case 1: {
-					std::cout << "CircleCylinder with r from ellipse" << std::endl;
-					std::cout << "Enter height:";std::cin >> h1;
-					CYL = CircleCylinder::CreateInst("Circle cyl", x, h1);
-					CYL->show();
-					std::string CYLstr = CYL->to_str();
-					
-				}break;
-				case 2: {
-					std::cout << "TriangleCylinder with a, b, c from triangle!" << std::endl;
-					std::cout << "Enter height:";std::cin >> h1;
-					CYL = TriangleCylinder::CreateInst("Triangle cyl", a, b, c, h1);
-					CYL->show();
-					std::string CYLstr = CYL->to_str();
+			std::cout << "Enter a, b, c(triangle):\n"; std::cin >> a >> b >> c;
+			std::cout << "Enter a, b(rectangle sides):\n"; std::cin >> a1 >> b1;
+			try {
+				
 
-				}break;
-				case 3: {
-					std::cout << "SquareCylinder with a=a and b=h from rectangle!" << std::endl;
-					
-					CYL = SquareCylinder::CreateInst("Square cyl", a1, b1);
-					CYL->show();
-					std::string CYLstr = CYL->to_str();
+				ellipse el = ellipse("Elipz", x, y);
+				circle* circ = new circle("Kryg", x);
+				triangle* tri = new triangle("Treygolnik", a, b, c);
+				rectangle rect = rectangle("Pryamoygolnik", a1, b1);
+				square* sq = new square("kvadrat", a1);
 
-				}break;
-				default:
+				el.show();
+				(*circ).show();
+				(*tri).show();
+				rect.show();
+				(*sq).show();
+				el.draw_and_move(0, 0);
+				(*circ).draw_and_move(0, 0);
+				(*tri).draw_and_move(0, 0);
+				rect.draw_and_move(0, 0);
+				(*sq).draw_and_move(0, 0);
+				bool t;
+				std::cout << "Do you want to create cylinders? 0-no 1-yes" << std::endl;std::cin >> t;
+				if (t) {
+					int z = -1;
+					while (z != 0)
+					{
+						std::cout << std::endl << "What cylinder do you want to create? 1-circle 2-triangle 3-square  0-exit" << std::endl;
+						std::cin >> z;
+						switch (z)
+						{
+						case 1: {
+							std::cout << "CircleCylinder with r from ellipse" << std::endl;
+							std::cout << "Enter height:";std::cin >> h1;
+
+							Cylinder<circle> CYL (circ, h1);
+							CYL.show();
+							std::string CYLstr = CYL.to_str();
+
+						}break;
+						case 2: {
+							std::cout << "TriangleCylinder with a, b, c from triangle!" << std::endl;
+							std::cout << "Enter height:";std::cin >> h1;
+							Cylinder<triangle> CYL(tri, h1);
+							CYL.show();
+							std::string CYLstr = CYL.to_str();;
+
+						}break;
+						case 3: {
+							std::cout << "SquareCylinder with a=a and b=h from rectangle!" << std::endl;
+
+							Cylinder<square> CYL(sq, h1);
+							CYL.show();
+							std::string CYLstr = CYL.to_str();
+
+						}break;
+						default:
+						{
+							break;
+						}
+						}
+					}
+
+				}
+				std::cout << "Do you want to move objects? No-0, Yes-1" << std::endl;std::cin >> t;
+				if (t)
 				{
-					break;
+					int x1 = -1;
+					while (x1 != 0)
+					{
+						std::cout << "What object do you want to move?\n1-Ellipse,  2-Circle,  3-Triangle,  4-Rectangle,  5-Square,  0-Exit" << std::endl;
+						std::cin >> x1;
+						switch (x1)
+						{
+						case 1: {
+							std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
+							el.draw_and_move(coord_x, coord_y);
+
+						}break;
+
+						case 2: {
+							std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
+							(*circ).draw_and_move(coord_x, coord_y);
+
+						}break;
+
+						case 3: {
+							std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
+							(*tri).draw_and_move(coord_x, coord_y);
+
+						}break;
+
+						case 4: {
+							std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
+							rect.draw_and_move(coord_x, coord_y);
+
+						}break;
+
+						case 5: {
+							std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
+							(*sq).draw_and_move(coord_x, coord_y);
+						}break;
+						default: {break;}
+						}
+					}
 				}
-				}
+				else std::cout << "NO MOVING!" << std::endl;
+				std::cout << "To_string example:" << std::endl;
+				std::string str1;
+				str1 = (*circ).to_string();
+				std::cout << std::endl << str1 << std::endl;
+			
+				
 			}
-
-		}
-
-		
-		std::cout << "Do you want to move objects? No-0, Yes-1" << std::endl;std::cin >> t;
-		if (t)
-		{
-
-			int x = -1;
-			while (x != 0)
-			{
-				std::cout << "What object do you want to move?\n1-Ellipse,  2-Circle,  3-Triangle,  4-Rectangle,  5-Square,  0-Exit" << std::endl;
-				std::cin >> x;
-				switch (x)
-				{
-				case 1: {
-					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
-					el.draw_and_move(coord_x, coord_y);
-
-				}break;
-
-				case 2: {
-					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
-					circ.draw_and_move(coord_x, coord_y);
-
-				}break;
-
-				case 3: {
-					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
-					tri.draw_and_move(coord_x, coord_y);
-
-				}break;
-
-				case 4: {
-					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
-					rect.draw_and_move(coord_x, coord_y);
-
-				}break;
-
-				case 5: {
-					std::cout << "Enter coordinates x, y:" << std::endl;std::cin >> coord_x >> coord_y;
-					sq.draw_and_move(coord_x, coord_y);
-				}break;
-				default: {break;}
-				}
+			catch (Exc exc) {
+				exc.show();
 			}
-		}
-		else std::cout << "NO MOVING!" << std::endl;
-		std::cout << "To_string example:" << std::endl;
-		std::string str1;
-		str1 = circ.to_string();
-		std::cout << std::endl << str1 << std::endl;
-		delete CYL;
-
+			catch (...) {
+				std::cout << "Some unknown error" << std::endl;
+			}
 	}
-
 };
 int main()
 {
